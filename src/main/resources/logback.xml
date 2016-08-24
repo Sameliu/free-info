@@ -1,0 +1,60 @@
+<configuration debug="false" scan="true" scanPeriod="60 seconds">
+    <property name="FILE_PATTERN" value="%d [%t] %5p %c - %m%n"/>
+    <property name="LOG_STDOUT_NAME" value="stdout"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>logs/${LOG_STDOUT_NAME}.log</File>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>32MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <fileNamePattern>logs/archive/${LOG_STDOUT_NAME}-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="STDOUTC" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d [%t] %5p \(%F:%L\) %method\(\) - %m%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <appender name="resultlog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>logs/result.log</File>
+        <encoder>
+            <pattern>%d [%t] %5p \(%F:%L\) - %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archive/result-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+
+    <appender name="monitorLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>logs/monitorLog.log</File>
+        <encoder>
+            <pattern>%d [%t] %5p \(%F:%L\) - %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/archive/monitorLog-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+
+    <logger name="com.sijin.free" level="INFO" additivity="false">
+        <appender-ref ref="resultlog"/>
+        <appender-ref ref="STDOUTC"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="monitorLog"/>
+    </root>
+
+
+</configuration>
