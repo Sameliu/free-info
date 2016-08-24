@@ -1,10 +1,15 @@
 package com.sijin.free.task;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.sijin.free.po.DockInfo;
 import com.sijin.free.po.DockMA;
+import com.sijin.free.po.yahoo.YahooDock;
 import com.sijin.free.util.CovertUtil;
 import com.sijin.free.util.DateUtils;
 import com.sijin.free.util.HttpClientPoolUtill;
+import com.sijin.free.util.SystemConfig;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +18,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
@@ -42,34 +44,55 @@ public class YahooTask implements Callable<DockMA> {
     }
 
     public DockMA call() throws Exception {
-        Thread.sleep(new Random().nextInt(1000)+1);
-        Thread.currentThread().setName("thread["+ threadNum +"]");
-        DockMA dockMA = new DockMA();
-        dockMA.setCode(code);
-        dockMA.setName(name);
+        Thread.sleep(new Random().nextInt(1000) + 1);
+        Thread.currentThread().setName("thread[" + threadNum + "]");
+        DockMA dockMA = null;
+
         try {
-            List<Double> plist = cell();
-            dockMA = deal(plist);    //3.计算统计
+            String sockCode = code.substring(2,code.length()).concat(".").concat(code.substring(0, 2));
+            sockCode = sockCode.replaceAll("sh", "SS");
+            //dockMA = deal(sockCode);
+            dockMA = dealNew(sockCode);
+            dockMA.setCode(code);
+            dockMA.setName(name);
         }catch (Exception e){
-            try {
-                List<Double> plist = cell();
-                dockMA = deal(plist);    //3.计算统计
-            }catch (Exception ee){
-                ee.printStackTrace();
-                LOGGER.info("bad data is " + code + ",name is " +name);
-            }
+            e.printStackTrace();
+            LOGGER.info("bad data is " + code + ",name is " +name);
 
         }
+        //LOGGER.info(dockMA.toString());
         return dockMA;
     }
 
-    public List<Double> cell()throws Exception {
-        String sockCode = code.substring(2,code.length()).concat(".").concat(code.substring(0, 2));
-        sockCode = sockCode.replaceAll("sh","SS");
+
+    private DockMA dealNew(String sockCode) throws Exception{
+        DockMA dockMA = new DockMA();
+       String url = "https://query2.finance.yahoo.com/v8/finance/chart/{0}?formatted=true&crumb=s8TWg1rzwZX&lang=en-US&region=US&interval=1d&events=div%7Csplit&range=3mo&corsDomain=finance.yahoo.com";
+       String _url = MessageFormat.format(url,sockCode);
+        String result = httpClient.get(_url,"utf-8", 5000, 3000);
+        JSONObject chat = (JSONObject) JSON.parseObject(result).get("chart");
+        JSONArray jsonArray = (JSONArray) chat.get("result");
+        YahooDock yahooDock = JSON.parseObject(jsonArray.get(0).toString(), YahooDock.class);
+        List<Double> plist = yahooDock.getIndicators().getQuote().get(0).getClose();
+        List<Double> plowlist = yahooDock.getIndicators().getQuote().get(0).getLow();
+        List<Double> phighlist = yahooDock.getIndicators().getQuote().get(0).getHigh();
+        Collections.sort(plowlist);
+        Collections.sort(phighlist);
+        Collections.reverse(plist);
+        dockMA = setPriceAndRage(dockMA, plist);
+        dockMA.setHighPirce(phighlist.get(phighlist.size()-1));
+        Double low = plowlist.get(0);
+        Double weight = Double.valueOf(SystemConfig.getValue("weight","1"));
+        dockMA.setLowPirce(low*weight);
+        return dockMA;
+    }
 
 
-        List<Double> priceList = getPriceList(sockCode);
-        return priceList;
+    private DockMA deal(String sockCode) throws Exception{
+        List<Double> plist = getPriceList(sockCode);
+        DockMA dockMA = new DockMA();
+        dockMA = setPriceAndRage(dockMA,plist);
+       return dockMA;
     }
 
     private List<Double> getPriceList(String sockCode) throws Exception {
@@ -114,46 +137,45 @@ public class YahooTask implements Callable<DockMA> {
         return priceList;
     }
 
+    private DockMA setPriceAndRage(DockMA dockMA,List<Double> plist){
+        try {
+            if(plist ==null || plist.size() == 0){
+                return dockMA;
+            }
 
-    private DockMA deal(List<Double> plist) throws Exception{
-
-        DockMA dockMA = new DockMA();
-        dockMA.setCode(code);
-        dockMA.setName(name);
-        if(plist ==null || plist.size() == 0){
-            return dockMA;
+            Double pnow = 0D;
+            Double sum5 = 0D;
+            Double sum10 = 0D;
+            Double sum20 = 0D;
+            Double sum30 = 0D;
+            for(int i=0;i<plist.size();i++){
+                if(i == 0){pnow = plist.get(i);}
+                if(i<5){sum5 += plist.get(i);}
+                if(i<10){sum10 += plist.get(i);}
+                if(i<20){sum20 += plist.get(i);}
+                sum30 += plist.get(i);
+            }
+            BigDecimal ma5 = new BigDecimal(df.format(sum5 / 5));
+            BigDecimal ma10 = new BigDecimal(df.format(sum10 / 10));
+            BigDecimal ma20 = new BigDecimal(df.format(sum20 / 20));
+            BigDecimal ma30 = new BigDecimal(df.format(sum30 / 30));
+            BigDecimal range5 = new BigDecimal(df.format((ma5.doubleValue() - pnow) / pnow)); //五日均价与当前价偏离情况
+            BigDecimal range10 = new BigDecimal(df.format((ma10.doubleValue() - pnow) / pnow)); //十日均价与当前价偏离情况
+            BigDecimal range20 = new BigDecimal(df.format((ma20.doubleValue() - pnow) / pnow)); //二十日均价与当前价偏离情况
+            BigDecimal range30 = new BigDecimal(df.format((ma30.doubleValue() - pnow) / pnow)); //三十日均价与当前价偏离情况
+            dockMA.setMa5(ma5);
+            dockMA.setMa10(ma10);
+            dockMA.setMa20(ma20);
+            dockMA.setMa30(ma30);
+            dockMA.setRange5(range5);
+            dockMA.setRange10(range10);
+            dockMA.setRange20(range20);
+            dockMA.setRange30(range30);
+            dockMA.setPrice(pnow);
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
-        Double pnow = 0D;
-        Double sum5 = 0D;
-        Double sum10 = 0D;
-        Double sum20 = 0D;
-        Double sum30 = 0D;
-        for(int i=0;i<plist.size();i++){
-            if(i == 0){pnow = plist.get(i);}
-            if(i<5){sum5 += plist.get(i);}
-            if(i<10){sum10 += plist.get(i);}
-            if(i<20){sum20 += plist.get(i);}
-            sum30 += plist.get(i);
-        }
-        BigDecimal ma5 = new BigDecimal(df.format(sum5 / 5));
-        BigDecimal ma10 = new BigDecimal(df.format(sum10 / 10));
-        BigDecimal ma20 = new BigDecimal(df.format(sum20 / 20));
-        BigDecimal ma30 = new BigDecimal(df.format(sum30 / 30));
-        BigDecimal range5 = new BigDecimal(df.format((ma5.doubleValue() - pnow) / pnow)); //五日均价与当前价偏离情况
-        BigDecimal range10 = new BigDecimal(df.format((ma10.doubleValue() - pnow) / pnow)); //十日均价与当前价偏离情况
-        BigDecimal range20 = new BigDecimal(df.format((ma20.doubleValue() - pnow) / pnow)); //二十日均价与当前价偏离情况
-        BigDecimal range30 = new BigDecimal(df.format((ma30.doubleValue() - pnow) / pnow)); //三十日均价与当前价偏离情况
-        dockMA.setMa5(ma5);
-        dockMA.setMa10(ma10);
-        dockMA.setMa20(ma20);
-        dockMA.setMa30(ma30);
-        dockMA.setRange5(range5);
-        dockMA.setRange10(range10);
-        dockMA.setRange20(range20);
-        dockMA.setRange30(range30);
-        dockMA.setPrice(pnow);
-        LOGGER.info(code + "["+name+"]:" +" ma30="+ ma30 +",range="+nf.format(range30)+",ma20="+ma20 +",range="+nf.format(range20)+",ma10="+ma10+",range="+nf.format(range10)+",ma5=" +ma5+",range="+nf.format(range5)+",prce="+pnow +",range="+nf.format(range20));
         return dockMA;
     }
 

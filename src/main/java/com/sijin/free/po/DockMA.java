@@ -20,6 +20,11 @@ public class DockMA {
 
     private Double price;
 
+    private Double lowPirce;
+
+    private Double highPirce;
+
+
     private BigDecimal range5;  //五日均价与当期间偏离程度
     private BigDecimal range10; //十日均价与当期间偏离程度
     private BigDecimal range20;
@@ -113,26 +118,37 @@ public class DockMA {
         this.range30 = range30;
     }
 
+    public Double getLowPirce() {
+        return lowPirce;
+    }
+
+    public void setLowPirce(Double lowPirce) {
+        this.lowPirce = lowPirce;
+    }
+
+    public Double getHighPirce() {
+        return highPirce;
+    }
+
+    public void setHighPirce(Double highPirce) {
+        this.highPirce = highPirce;
+    }
+
     @Override
     public String toString() {
-        if(name.length() ==3){
-            name = name.concat("  ");
-        }
-        if(range5.doubleValue() <0){
-
-        }
-
         return "DockMA{" +
                 code+"[" + name +"]" +
                 ", ma5=" + ma5 +
-                ", range5=" + (range5.doubleValue() >=0 ? "+" +range5 : range5) +
+                ", range5=" + range5 +
                 ", ma10=" + ma10 +
-                ", range10=" + (range10.doubleValue() >=0 ? "+" +range10 : range10) +
+                ", range10=" + range10 +
                 ", ma20=" + ma20 +
-                ", range20=" + (range20.doubleValue() >=0 ? "+" +range20 : range20) +
+                ", range20=" + range20 +
                 ", ma30=" + ma30 +
-                ", range30=" + (range30.doubleValue() >=0 ? "+" +range30 : range30) +
+                ", range30=" + range30 +
                 ", price=" + price +
+                ", lowprice=" + lowPirce +
+                ", highPirce=" + highPirce +
                 '}';
     }
 }

@@ -26,33 +26,35 @@ public class Fe {
 
     private static void all() throws Exception {
 
-        List<DockInfo> list = FileUtil.loadDockFromConf("/Users/sijinzhang/git/datapp/free-info/src/main/resources/fe.properties");
-        if(CollectionUtils.isEmpty(list)){return;}
+
         while (true){
-            try {
-                StringBuffer sb = new StringBuffer();
-                Map<String,DockInfo> map = new HashMap<>();
-                for(DockInfo dockInfo : list){
-                    sb.append(dockInfo.getCode()).append(",");
-                    map.put(dockInfo.getCode(),dockInfo);
+            List<DockInfo> list = FileUtil.loadDockFromConf("/Users/sijinzhang/git/datapp/free-info/src/main/resources/fe.properties");
+            if(!CollectionUtils.isEmpty(list)){
+                try {
+                    StringBuffer sb = new StringBuffer();
+                    Map<String,DockInfo> map = new HashMap<>();
+                    for(DockInfo dockInfo : list){
+                        sb.append(dockInfo.getCode()).append(",");
+                        map.put(dockInfo.getCode(),dockInfo);
+                    }
+                    String posturl = url+ sb.deleteCharAt(sb.length()-1).toString();
+                    String result = httpClient.get(posturl);
+                    String arrp[] = result.split(";\n");
+                    List<DockInfo> resultList = new ArrayList<>();
+                    for(String r : arrp){
+                        DockInfo inf = new DockInfo();
+                        inf = CovertUtil.covertToDockInfo(result);
+                        inf.setMywantbuy(map.get(inf.getCode()).getMywantbuy());
+                        inf.setMywantsale(map.get(inf.getCode()).getMywantsale());
+                        resultList.add(inf);
+                    }
+                    handle(resultList);
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-                String posturl = url+ sb.deleteCharAt(sb.length()-1).toString();
-                String result = httpClient.get(posturl);
-                String arrp[] = result.split(";\n");
-                List<DockInfo> resultList = new ArrayList<>();
-                for(String r : arrp){
-                    DockInfo inf = new DockInfo();
-                    inf = CovertUtil.covertToDockInfo(result);
-                    inf.setMywantbuy(map.get(inf.getCode()).getMywantbuy());
-                    inf.setMywantsale(map.get(inf.getCode()).getMywantsale());
-                    resultList.add(inf);
-                }
-                handle(resultList);
-                Thread.sleep(10000);
-            }catch (Exception e){
 
             }
-
+            Thread.sleep(10000);
         }
     }
 
