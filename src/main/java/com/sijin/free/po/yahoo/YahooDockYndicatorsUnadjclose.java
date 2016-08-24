@@ -6,13 +6,13 @@ import java.util.List;
  * Created by sijinzhang on 16/8/24.
  */
 public class YahooDockYndicatorsUnadjclose {
-    private List<Float> unadjclose;
+    private List<Double> unadjclose;
 
-    public List<Float> getUnadjclose() {
+    public List<Double> getUnadjclose() {
         return unadjclose;
     }
 
-    public void setUnadjclose(List<Float> unadjclose) {
+    public void setUnadjclose(List<Double> unadjclose) {
         this.unadjclose = unadjclose;
     }
 }

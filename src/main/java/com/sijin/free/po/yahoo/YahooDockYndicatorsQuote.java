@@ -6,49 +6,49 @@ import java.util.List;
  * Created by sijinzhang on 16/8/24.
  */
 public class YahooDockYndicatorsQuote {
-    private List<String> close;
-    private List<Float> open;
-    private List<Float> low;
-    private List<Float> volume;
-    private List<Float> high;
+    private List<Double> close;
+    private List<Double> open;
+    private List<Double> low;
+    private List<Double> volume;
+    private List<Double> high;
 
-    public List<String> getClose() {
+    public List<Double> getClose() {
         return close;
     }
 
-    public void setClose(List<String> close) {
+    public void setClose(List<Double> close) {
         this.close = close;
     }
 
-    public List<Float> getOpen() {
+    public List<Double> getOpen() {
         return open;
     }
 
-    public void setOpen(List<Float> open) {
+    public void setOpen(List<Double> open) {
         this.open = open;
     }
 
-    public List<Float> getLow() {
+    public List<Double> getLow() {
         return low;
     }
 
-    public void setLow(List<Float> low) {
+    public void setLow(List<Double> low) {
         this.low = low;
     }
 
-    public List<Float> getVolume() {
+    public List<Double> getVolume() {
         return volume;
     }
 
-    public void setVolume(List<Float> volume) {
+    public void setVolume(List<Double> volume) {
         this.volume = volume;
     }
 
-    public List<Float> getHigh() {
+    public List<Double> getHigh() {
         return high;
     }
 
-    public void setHigh(List<Float> high) {
+    public void setHigh(List<Double> high) {
         this.high = high;
     }
 }

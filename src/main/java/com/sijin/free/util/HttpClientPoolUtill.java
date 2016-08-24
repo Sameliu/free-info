@@ -81,6 +81,7 @@ public class HttpClientPoolUtill {
                 response.close();
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             throw ex;
         }
         return res;
