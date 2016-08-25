@@ -50,23 +50,23 @@ public class StrategyService {
             System.out.println(d.toString());
             monitorLog.info(d.toString());
         }
-        if(!StringUtils.isEmpty(strategy.getLogfile())){
+        if(strategy.getLogfile() != null && !StringUtils.isEmpty(strategy.getLogfile())){
             FileUtil.renameLogFile(strategy.getLogfile());
         }
 
         if(strategy.isGenerhtml()){ //是否生成html
-            List<String> ma= new ArrayList<String>();
+            HtmlUtil.generateHtml(dockMAList, strategy.getfName());
+        }
+
+        if(strategy.isSendMail()){ //是否发送邮件
             for(DockMA dockma : dockMAList){
                 if(dockma.getMa5().doubleValue() >= dockma.getPrice() && dockma.getMa10().doubleValue() >=dockma.getPrice() &&
                         dockma.getMa20().doubleValue() >= dockma.getPrice() && dockma.getMa30().doubleValue() >=dockma.getPrice()){
-                    ma.add(dockma.getCode());
-                    HtmlUtil.generateHtml(ma, strategy.getfName());
                     if(strategy.isSendMail()){  //是否发报警
                         MailUtil.sendMessage("低于均线统计监控",dockma.toString());
                     }
                 }
             }
-
         }
     }
 

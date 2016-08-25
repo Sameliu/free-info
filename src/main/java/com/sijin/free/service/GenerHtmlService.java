@@ -14,12 +14,8 @@ public class GenerHtmlService {
 
     public static void main(String[] args) {
         List<DockInfo> list = FileUtil.loadDockFromConf(null);
-        List<String> ma = new ArrayList<>();
-        for(DockInfo d :list){
-            ma.add(d.getCode());
-        }
-        System.out.println(ma.size());
-        HtmlUtil.generateHtml(ma, "ma.html");
+
+        //HtmlUtil.generateHtml(list, "ma.html");
 
     }
 }

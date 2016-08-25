@@ -5,6 +5,7 @@ import com.sijin.free.po.RedSoldier;
 import com.sijin.free.po.RedSoldierItem;
 import com.sijin.free.util.DateUtils;
 import com.sijin.free.util.HttpClientPoolUtill;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class SoldierTask implements Callable<RedSoldier> {
         RedSoldier redSoldier = new RedSoldier();
         Date date = new Date();
         List<RedSoldierItem> redSoldierItemList = new ArrayList<RedSoldierItem>();
-        for(int i=0;i<=5; i++) {
+        for(int i=0;i<=6; i++) {
             int wk = DateUtils.getChineseWeekday(date);
             if(wk ==  7 || wk == 1 ){
                 continue;
@@ -73,8 +74,10 @@ public class SoldierTask implements Callable<RedSoldier> {
         }
         redSoldier.setCode(code);
         redSoldier.setName(name);
-        redSoldier.setRedSoldierItemList(redSoldierItemList);
-        redSoldier.setPrice(redSoldierItemList.get(0).getPrice());
+        if(!CollectionUtils.isEmpty(redSoldierItemList)){
+            redSoldier.setRedSoldierItemList(redSoldierItemList);
+            redSoldier.setPrice(redSoldierItemList.get(0).getPrice());
+        }
         return redSoldier;
     }
 

@@ -18,7 +18,7 @@ import java.util.concurrent.*;
  */
 public class TaskService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
-    static ExecutorService executor = new ThreadPoolExecutor(50, Integer.MAX_VALUE,
+    static ExecutorService executor = new ThreadPoolExecutor(3, Integer.MAX_VALUE,
             60000L, TimeUnit.SECONDS,
             new SynchronousQueue<Runnable>());
 

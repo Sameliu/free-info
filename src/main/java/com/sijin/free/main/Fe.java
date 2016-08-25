@@ -9,6 +9,10 @@ import java.util.*;
 
 /**
  * Created by sijinzhang on 16/8/24.
+ *增加高频监控
+ * 每次只有十个
+ *
+ *
  */
 public class Fe {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Fe.class);
@@ -28,6 +32,12 @@ public class Fe {
 
 
         while (true){
+            if(!checkTime()){
+                LOGGER.info("未到执行时间，睡眠");
+                Thread.sleep(60000);
+                continue;
+            }
+
             List<DockInfo> list = FileUtil.loadDockFromConf("/Users/sijinzhang/git/datapp/free-info/src/main/resources/fe.properties");
             if(!CollectionUtils.isEmpty(list)){
                 try {
@@ -43,7 +53,7 @@ public class Fe {
                     List<DockInfo> resultList = new ArrayList<>();
                     for(String r : arrp){
                         DockInfo inf = new DockInfo();
-                        inf = CovertUtil.covertToDockInfo(result);
+                        inf = CovertUtil.covertToDockInfo(r);
                         inf.setMywantbuy(map.get(inf.getCode()).getMywantbuy());
                         inf.setMywantsale(map.get(inf.getCode()).getMywantsale());
                         resultList.add(inf);
@@ -58,10 +68,28 @@ public class Fe {
         }
     }
 
+    private static boolean checkTime() throws Exception{
+        Date d = new Date();
+        String date =  DateUtils.formatDate(d);
+        Date dateStart_morining = DateUtils.parseDateTime(date + " 09:30:00");
+        Date dateEnd_morining = DateUtils.parseDateTime(date + " 11:30:00");
+
+        Date dateStart_afternoon = DateUtils.parseDateTime(date + " 13:00:00");
+        Date dateEnd_afternoon = DateUtils.parseDateTime(date + " 15:00:00");
+        if((d.after(dateStart_morining) && d.before(dateEnd_morining)) || (d.after(dateStart_afternoon) && d.before(dateEnd_afternoon))){
+            return true;
+        }
+
+        return false;
+    }
+
     private static void handle(List<DockInfo> dockInfolist) {
         String subject = "";
         List<String> messageList = new ArrayList<String>();
         for(DockInfo dockInfo : dockInfolist){
+            if(dockInfo.gethPrice() == 0){
+                continue;
+            }
             if(dockInfo.getlPrice().compareTo(dockInfo.getMywantbuy()) <=0 &&
                     dockInfo.getPrice().compareTo(dockInfo.getMywantbuy()) <=0 ){
                 subject = dockInfo.getName() + "[" + dockInfo.getCode() + "]" + " price is " + dockInfo.getPrice() + ",less than " + dockInfo.getMywantbuy() ;

@@ -19,6 +19,11 @@ public enum UseFileType {
     GAINIAN(3),
 
     /**
+     * 使用监控
+     */
+    MONITOR(4),
+
+    /**
      * 默认使用全部
      */
     DEFAULT(0);

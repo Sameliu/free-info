@@ -20,16 +20,31 @@ public class ComparatorListSort implements Comparator<DockMA> {
             case 2:
                 return sortPrice(o1, o2);
             case 5:
-                return sortRange5(o1,o2);
+                return sortRange5(o1, o2);
             case 10:
-                return sortRange10(o1,o2);
+                return sortRange10(o1, o2);
             case 20:
                 return sortRange20(o1, o2);
             case 30:
-                return sortRange30(o1,o2);
+                return sortRange30(o1, o2);
+            case 88:
+                return sortDeviation(o1,o2);
                 default:
                 return 0;
         }
+    }
+
+    private int sortDeviation(DockMA o1, DockMA o2) {
+        if (o1.getDeviation().doubleValue() > o2.getDeviation().doubleValue()) {
+            return -1;
+        }
+        if (o1.getDeviation().doubleValue() == o2.getDeviation().doubleValue()) {
+            return 0;
+        }
+        if (o1.getDeviation().doubleValue() < o2.getDeviation().doubleValue()) {
+            return 1;
+        }
+        return 0;
     }
 
     private int sortPrice(DockMA o1, DockMA o2) {

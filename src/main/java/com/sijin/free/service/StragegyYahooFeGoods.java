@@ -7,6 +7,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Created by sijinzhang on 16/6/8.
+ *
+ * 扫描当前价最接近历史最低价的
+ * 输入：白名单
+ * 输出：按照接近程度排序
+ * 接近1个点的生成html 报表：StragegyYahooFeGoods.html
+ *
+ *
  */
 public class StragegyYahooFeGoods {
     private static final Logger LOGGER = LoggerFactory.getLogger(StragegyYahooFeGoods.class);
@@ -22,12 +29,11 @@ public class StragegyYahooFeGoods {
 
     private static void all() throws Exception {
         Strategy strategy = new Strategy();
-        strategy.setCompartorType(2);
+        strategy.setCompartorType(88);
         strategy.setUseFileType(UseFileType.CONFIGFILE);
         strategy.setIsGenerhtml(true);
-        strategy.setfName("ma.html");
+        strategy.setfName("常用Conf名单的均线.html");
         strategy.setIsSendMail(false);
-        strategy.setLogfile("logs/StragegyYahooFeGoods.log");
         StrategyService.handle(strategy);
     }
 

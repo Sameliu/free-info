@@ -7,26 +7,19 @@ import com.alibaba.fastjson.JSONObject;
 import com.sijin.free.po.yahoo.YahooDock;
 import com.sijin.free.util.HttpClientPoolUtill;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 /**
  * Created by sijinzhang on 16/5/17.
  */
 public class Test {
-    static HttpClientPoolUtill httpClient = new HttpClientPoolUtill(100,50);
+    static NumberFormat nf   =   NumberFormat.getPercentInstance();
     public static void main(String[] args) {
-        String url = "https://query2.finance.yahoo.com/v8/finance/chart/600460.SS?formatted=true&crumb=s8TWg1rzwZX&lang=en-US&region=US&interval=1d&events=div%7Csplit&range=90d&corsDomain=finance.yahoo.com";
-        try {
-            String result = httpClient.get(url);
-            JSONObject chat = (JSONObject) JSON.parseObject(result).get("chart");
-            JSONArray jsonArray = (JSONArray) chat.get("result");
-//            String input = jsonArray.get(0).toString().replaceAll("\\[\\{", "{").replaceAll("\\}\\]","}");
-//            YahooDock yahooDock = JSON.parseObject(input, YahooDock.class);
+        nf.setMinimumFractionDigits(4);
 
-            String input = jsonArray.get(0).toString();
-            YahooDock yahooDock = JSON.parseObject(input, YahooDock.class);
-            System.out.println(input);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println(nf.format(-0.006920887326611047));
+
 
 
 //        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
