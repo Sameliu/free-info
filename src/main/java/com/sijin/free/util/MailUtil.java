@@ -33,7 +33,7 @@ public class MailUtil {
 
             //发送邮件
             Transport transport = session.getTransport();
-            transport.connect("smtp.163.com", "zhanghan_198@163.com", "ju46..@&$");
+            transport.connect("smtp.163.com", "zhanghan_198@163.com", "xxx");
             transport.sendMessage(msg, new Address[]{new InternetAddress("272885400@qq.com")});
             transport.close();
         } catch (Exception e) {
