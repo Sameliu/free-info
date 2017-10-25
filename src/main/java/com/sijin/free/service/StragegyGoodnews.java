@@ -22,11 +22,9 @@ public class StragegyGoodnews {
 
     private static void all() throws Exception {
         Strategy strategy = new Strategy();
-        strategy.setCompartorType(5);
         strategy.setUseFileType(UseFileType.WHITELIST);
         strategy.setIsGenerhtml(true);
-        strategy.setfName("report-ma.html");
-        strategy.setLogfile("logs/StragegyGoodnews.log");
+        strategy.setHtmlFileName("report-ma.html");
         strategy.setIsSendMail(true);
         StrategyService.handle(strategy);
     }

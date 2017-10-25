@@ -12,14 +12,16 @@ import java.util.Map;
  * Created by sijinzhang on 16/6/19.
  */
 public class DockListUtil {
+    //http://www.szse.cn/szseWeb/ShowReport.szse?SHOWTYPE=xlsx&CATALOGID=1110&tab2PAGENUM=1&ENCODE=1&TABKEY=tab2
+    //http://query.sse.com.cn/security/stock/downloadStockListFile.do?csrcCode=&stockCode=&areaName=&stockType=1
     static HttpClientPoolUtill httpClient = new HttpClientPoolUtill(1,2);
     static String url_all = "http://ctxalgo.com/api/stocks";
 
 
-    public static List<DockInfo> getDockList() throws Exception{
+    public static List<DockInfo> getDockListDefaultAll() throws Exception{
         List<DockInfo> list = new ArrayList<DockInfo>();
         String[] strstock;
-        String dock_result = httpClient.get(url_all, "gbk", 250000, 30000);
+        String dock_result = httpClient.get(url_all, "gbk", 250000, 30000,null);
         if(StringUtils.isNotBlank(dock_result)){
             String ss = dock_result.substring(dock_result.indexOf("{") + 1, dock_result.indexOf("}"));
             String[] arr = ss.split(",");
@@ -28,8 +30,10 @@ public class DockListUtil {
                 DockInfo dockInfo = new DockInfo();
                 strstock = arr[i].split(":");
                 if(strstock.length >=2){
+                    String name = convert(strstock[1].replaceAll("\"",""));
+                    if(name.contains("ST")){continue;}
                     dockInfo.setCode(strstock[0].replaceAll("\"","").trim());
-                    dockInfo.setName(convert(strstock[1].replaceAll("\"","")));
+                    dockInfo.setName(name);
                     list.add(dockInfo);
                 }
             }
@@ -41,7 +45,7 @@ public class DockListUtil {
 
         Map<String, DockInfo> map = new HashMap<String, DockInfo>();
         String[] strstock;
-        String dock_result = httpClient.get(url_all, "gbk", 250000, 30000);
+        String dock_result = httpClient.get(url_all, "gbk", 250000, 30000,null);
         if(StringUtils.isNotBlank(dock_result)){
             String ss = dock_result.substring(dock_result.indexOf("{") + 1, dock_result.indexOf("}"));
             String[] arr = ss.split(",");

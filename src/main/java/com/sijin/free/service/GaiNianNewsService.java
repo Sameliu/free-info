@@ -26,12 +26,10 @@ public class GaiNianNewsService{
 
     private static void all() throws Exception {
         Strategy strategy = new Strategy();
-        strategy.setCompartorType(2);
         strategy.setUseFileType(UseFileType.GAINIAN);
         strategy.setIsGenerhtml(true);
-        strategy.setfName("gainian.html");
+        strategy.setHtmlFileName("gainian.html");
         strategy.setIsSendMail(true);
-        strategy.setLogfile("logs/GaiNianNewsService.log");
         StrategyService.handle(strategy);
     }
 

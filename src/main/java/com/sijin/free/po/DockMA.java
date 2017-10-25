@@ -7,7 +7,6 @@ import java.text.NumberFormat;
  * Created by sijinzhang on 16/6/9.
  */
 public class DockMA {
-    static NumberFormat df   =   NumberFormat.getPercentInstance();
     private Double ma5;
 
     private Double ma10;
@@ -20,13 +19,13 @@ public class DockMA {
 
     private String name;
 
-    private Double price;
+    private Double price;   //当前价
 
-    private Double lowPirce;
+    private Double lowPirce;   //90天最低价
 
     private Double deviation; //偏离度
 
-    private Double highPirce;
+    private Double highPirce;   //90天最高价
 
 
     private Double range5;  //五日均价与当期间偏离程度
@@ -35,7 +34,7 @@ public class DockMA {
     private Double range30;
 
     public DockMA() {
-        df.setMinimumFractionDigits(4);
+
     }
 
     public Double getMa5() {
@@ -155,17 +154,17 @@ public class DockMA {
         return "DockMA{" +
                 code+"[" + name +"]" +
                 ", ma5=" + ma5 +
-                ", range5=" + df.format(range5) +
+                ", range5=" + range5 +
                 ", ma10=" + ma10 +
-                ", range10=" + df.format(range10) +
+                ", range10=" + range10 +
                 ", ma20=" + ma20 +
-                ", range20=" + df.format(range20) +
+                ", range20=" + range20 +
                 ", ma30=" + ma30 +
-                ", range30=" + df.format(range30) +
+                ", range30=" + range30 +
                 ", price=" + price +
                 ", lowprice=" + lowPirce +
                 ", highPirce=" + highPirce +
-                ", deviation=" + df.format(deviation) +
+                ", deviation=" + deviation +
                 '}';
     }
 }

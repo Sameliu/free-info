@@ -22,14 +22,12 @@ public class StragegyYahooGoods {
 
     private static void all() throws Exception {
         Strategy strategy = new Strategy();
-        strategy.setPriceStart(8D);
-        strategy.setPriceEnd(12D);
-        strategy.setCompartorType(2);
+        strategy.setPriceStart(10D);
+        strategy.setPriceEnd(45D);
         strategy.setUseFileType(UseFileType.CONFIGFILE);
         strategy.setIsGenerhtml(true);
-        strategy.setfName("ma.html");
+        strategy.setHtmlFileName("low.html");
         strategy.setIsSendMail(false);
-        strategy.setLogfile("logs/getYahooGoodsWhiteMultipleAndLimit.log");
         StrategyService.handle(strategy);
     }
 

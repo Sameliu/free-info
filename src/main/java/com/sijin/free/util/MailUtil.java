@@ -11,8 +11,9 @@ import java.util.Properties;
  */
 public class MailUtil {
 
-    public static void main(String[] args) throws MessagingException, GeneralSecurityException {
 
+    public static void main(String[] args) throws MessagingException, GeneralSecurityException {
+        sendMessage("周报","本周周报");
 
     }
 
@@ -28,13 +29,12 @@ public class MailUtil {
             //邮件内容部分
             Message msg = new MimeMessage(session);
             msg.setSubject(subject);
-            msg.setText(contnet);
+            msg.setContent(contnet, "text/html; charset=utf-8");
             msg.setFrom(new InternetAddress("zhanghan_198@163.com"));//邮件发送者
-
             //发送邮件
             Transport transport = session.getTransport();
-            transport.connect("smtp.163.com", "zhanghan_198@163.com", "xxx");
-            transport.sendMessage(msg, new Address[]{new InternetAddress("272885400@qq.com")});
+            transport.connect("smtp.163.com", "zhanghan_198@163.com", "justin462133...");
+            transport.sendMessage(msg, new Address[]{new InternetAddress("13661282782@139.com")});
             transport.close();
         } catch (Exception e) {
             e.printStackTrace();

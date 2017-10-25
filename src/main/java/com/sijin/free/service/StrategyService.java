@@ -20,53 +20,48 @@ import java.util.List;
 public class StrategyService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StrategyService.class);
-    private static final Logger monitorLog = LoggerFactory.getLogger("monitorLog");
 
     public static void handle(Strategy strategy) throws Exception{
         if(strategy == null){return;}
-        List<DockInfo> list  = new ArrayList<DockInfo>();
+        List<DockInfo> list  = null;
         if(strategy.getUseFileType().getType() == 1){ //获取输入信息
             list = FileUtil.loadDockFromConf(null);
         }else if(strategy.getUseFileType().getType() == 2){
             list = FileUtil.loadDockList("/Users/sijinzhang/study/free-info/whitelist.properties");
         }else if(strategy.getUseFileType().getType() == 3){
             list = FileUtil.loadDockList("/Users/sijinzhang/git/datapp/free-info/src/main/resources/gainian.properties");
-
         }else {
-            list = DockListUtil.getDockList();
+            list = DockListUtil.getDockListDefaultAll();
         }
         if(CollectionUtils.isEmpty(list)){return;}
 
         List<DockMA> dockMAList = TaskService.executeYahoTask(list,null);   //多线程爬取结果
         if(CollectionUtils.isEmpty(dockMAList)){return;}
+        while (true){   //如果有失败的，进行重试
+            if(RemedyUtil.empty()){
+                break;
+            }
+            List<DockInfo> reList = RemedyUtil.toArrayList();
+            LOGGER.info("睡眠5秒，然后处理List,大小是{}",reList.size());
+            Thread.sleep(5000);
+            dockMAList.addAll(TaskService.executeYahoTask(reList, null));
+            RemedyUtil.clear();
+
+        }
+        List<DockMA> newList = strategy.getReport().yunsuan(dockMAList,strategy);
 
         if(strategy.getCompartorType() != 0) {  //排序
             Comparator comparator = new ComparatorListSort(strategy.getCompartorType());
-            Collections.sort(dockMAList, comparator);
+            Collections.sort(newList, comparator);
         }
 
-        LOGGER.info("\r\n"+ "统计结果：" + "\r\n" );
-        for(DockMA d : dockMAList){     //生成统计日志
-            System.out.println(d.toString());
-            monitorLog.info(d.toString());
-        }
-        if(strategy.getLogfile() != null && !StringUtils.isEmpty(strategy.getLogfile())){
-            FileUtil.renameLogFile(strategy.getLogfile());
-        }
 
         if(strategy.isGenerhtml()){ //是否生成html
-            HtmlUtil.generateHtml(dockMAList, strategy.getfName());
+            HtmlUtil.generateHtml(newList, strategy.getHtmlFileName());
         }
 
         if(strategy.isSendMail()){ //是否发送邮件
-            for(DockMA dockma : dockMAList){
-                if(dockma.getMa5().doubleValue() >= dockma.getPrice() && dockma.getMa10().doubleValue() >=dockma.getPrice() &&
-                        dockma.getMa20().doubleValue() >= dockma.getPrice() && dockma.getMa30().doubleValue() >=dockma.getPrice()){
-                    if(strategy.isSendMail()){  //是否发报警
-                        MailUtil.sendMessage("低于均线统计监控",dockma.toString());
-                    }
-                }
-            }
+            MailUtil.sendMessage("低于均线统计监控",newList.toString());
         }
     }
 

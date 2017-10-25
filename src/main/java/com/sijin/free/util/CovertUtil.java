@@ -16,8 +16,14 @@ public class CovertUtil {
     public static DockInfo covertToDockInfo(String input){
 
         String[] arr = input.split("\"");
+        if(arr.length<2){
+            return null;
+        }
         String str = arr[1];
         String[] strArrDockinfo = str.split(",");
+        if(strArrDockinfo.length<4){
+            return null;
+        }
         DockInfo dockInfo = new DockInfo();
         dockInfo.setName(strArrDockinfo[0]);
         dockInfo.setsPrice(Double.valueOf(strArrDockinfo[1]));
@@ -29,7 +35,7 @@ public class CovertUtil {
         dockInfo.setTimep(strArrDockinfo[31]);
         String s = arr[0].split("str_")[1];
         dockInfo.setCode(s.substring(0,s.length()-1));
-
+        dockInfo.setRate((dockInfo.getPrice()-dockInfo.getsPrice())/dockInfo.getsPrice()*100);
         return  dockInfo;
     }
 

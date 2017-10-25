@@ -29,10 +29,9 @@ public class StragegyYahooFeGoods {
 
     private static void all() throws Exception {
         Strategy strategy = new Strategy();
-        strategy.setCompartorType(88);
         strategy.setUseFileType(UseFileType.CONFIGFILE);
         strategy.setIsGenerhtml(true);
-        strategy.setfName("常用Conf名单的均线.html");
+        strategy.setHtmlFileName("常用Conf名单的均线.html");
         strategy.setIsSendMail(false);
         StrategyService.handle(strategy);
     }

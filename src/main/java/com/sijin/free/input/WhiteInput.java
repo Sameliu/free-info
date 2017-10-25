@@ -98,7 +98,7 @@ public class WhiteInput {
 
     private static void writeWhiteList(String url) throws Exception {
 
-        String result = httpClient.get(url, "utf-8", 25000, 30000);
+        String result = httpClient.get(url, "utf-8", 25000, 30000,null);
         String _result = result.substring(result.indexOf("\"data\""), result.indexOf("\"cate\""));
         Pattern p = Pattern.compile(reg);
         Matcher m = p.matcher(_result);

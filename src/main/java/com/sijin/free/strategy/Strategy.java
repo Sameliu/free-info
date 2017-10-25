@@ -16,19 +16,19 @@ public class Strategy {
 
     private Double priceEnd;  //价格区间结束
 
-    private UseFileType useFileType;
+    private UseFileType useFileType;    //使用配置文件
 
     private Double weight;  //最低价加权
 
-    private int compartorType;// 排序规则 1.按照买入幅度
+    private int compartorType; //比较排序
 
-    private String logfile; //统计结果的文件名字
-
-    private boolean isGenerhtml; //是否生成图片
+    private boolean isGenerhtml; //是否生成html
 
     private boolean isSendMail; //是否发报警
 
-    private String fName;   //生成文件名
+    private String htmlFileName;   //生成文件名
+
+    private Report report;
 
 
     public Double getPriceStart() {
@@ -63,22 +63,6 @@ public class Strategy {
         this.weight = weight;
     }
 
-    public int getCompartorType() {
-        return compartorType;
-    }
-
-    public void setCompartorType(int compartorType) {
-        this.compartorType = compartorType;
-    }
-
-    public String getLogfile() {
-        return logfile;
-    }
-
-    public void setLogfile(String logfile) {
-        this.logfile = logfile;
-    }
-
     public boolean isGenerhtml() {
         return isGenerhtml;
     }
@@ -87,12 +71,12 @@ public class Strategy {
         this.isGenerhtml = isGenerhtml;
     }
 
-    public String getfName() {
-        return fName;
+    public String getHtmlFileName() {
+        return htmlFileName;
     }
 
-    public void setfName(String fName) {
-        this.fName = fName;
+    public void setHtmlFileName(String htmlFileName) {
+        this.htmlFileName = htmlFileName;
     }
 
     public boolean isSendMail() {
@@ -101,5 +85,21 @@ public class Strategy {
 
     public void setIsSendMail(boolean isSendMail) {
         this.isSendMail = isSendMail;
+    }
+
+    public Report getReport() {
+        return report;
+    }
+
+    public void setReport(Report report) {
+        this.report = report;
+    }
+
+    public int getCompartorType() {
+        return compartorType;
+    }
+
+    public void setCompartorType(int compartorType) {
+        this.compartorType = compartorType;
     }
 }

@@ -1,5 +1,6 @@
 package com.sijin.free.service;
 
+import com.sijin.free.exception.HanlderThreadException;
 import com.sijin.free.po.DockInfo;
 import com.sijin.free.po.DockMA;
 import com.sijin.free.po.RedSoldier;
@@ -20,7 +21,7 @@ public class TaskService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
     static ExecutorService executor = new ThreadPoolExecutor(3, Integer.MAX_VALUE,
             60000L, TimeUnit.SECONDS,
-            new SynchronousQueue<Runnable>());
+            new SynchronousQueue<Runnable>(),new HanlderThreadException());
 
 
     public static List<RedSoldier> executeSoldierTask(List<DockInfo> list) throws Exception{
@@ -117,7 +118,6 @@ public class TaskService {
             Thread.sleep(2000L);
             List<Future<DockMA>> resultListSecond=executor.invokeAll(taskListsecond);
             executor.shutdown();
-
             resultList.addAll(resultListSecond);
         }else {
             executor.shutdown();

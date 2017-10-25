@@ -84,7 +84,7 @@ public class SoldierTask implements Callable<RedSoldier> {
     public static Double getstockinfobyDay(String code, String d) throws Exception {
         Double price = -1D;
         String url = "http://market.finance.sina.com.cn/downxls.php?date="+d +"&symbol="+code;
-        String s = httpClient.get(url, "gbk", 250000, 30000);
+        String s = httpClient.get(url, "gbk", 250000, 30000,null);
         if(!StringUtils.isBlank(s)){
             String[] arr = s.split("\n");
             if(arr.length >=2){

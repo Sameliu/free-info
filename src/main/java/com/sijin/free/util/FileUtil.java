@@ -32,8 +32,9 @@ public class FileUtil {
         List<DockInfo> list = new ArrayList<DockInfo>();
         Map<String,DockInfo> map = new HashMap<>();
         String str = null;
+        BufferedReader br = null;
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
+            br = new BufferedReader(new FileReader(path));
             while((str = br.readLine()) != null) {
                 if(str.startsWith("#")|| StringUtils.isEmpty(str)){
                     continue;
@@ -44,11 +45,22 @@ public class FileUtil {
                 dockInfo.setMywantbuy(Double.valueOf(p[1]));
                 dockInfo.setMywantsale(Double.valueOf(p[2]));
                 dockInfo.setName(p[3]);
+                if(p.length >=5){
+                    dockInfo.setHaveBuy(Double.valueOf(p[4]));
+                }
                 map.put(dockInfo.getCode(), dockInfo);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println(str);
             e.printStackTrace();
+        }finally {
+            if(br != null){
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         for(Map.Entry<String,DockInfo> entry : map.entrySet()){
             list.add(entry.getValue());
@@ -57,21 +69,7 @@ public class FileUtil {
         return list;
     }
 
-    /**
-     * 重命名log文件
-     * @param newFile
-     */
-    public static void renameLogFile(String newFile) {
-        File f = new File("logs/monitorLog.log");
-        if(f.exists()){
-            File nf = new File(newFile);
-            if(nf.exists()){
-                nf.delete();
-            }
-            f.renameTo(nf);
-            System.out.println(nf.getAbsolutePath());
-        }
-    }
+
 
 
     /**
@@ -87,7 +85,6 @@ public class FileUtil {
             BufferedReader br = new BufferedReader(new FileReader(filePath));
 
             while((str = br.readLine()) != null) {
-                System.out.println(str);
                 if(!StringUtils.isEmpty(str) && !str.startsWith("#")){
                     String[] p = str.split(",");
                     if(p.length <1){continue;}
@@ -99,13 +96,15 @@ public class FileUtil {
                         if(p[0].startsWith("s")){
                             c = p[0];
                         }else {
-                            c = p[0].startsWith("600") ? "sh" + p[0] : "sz" + p[0];
+                            c = p[0].startsWith("6") ? "sh" + p[0] : "sz" + p[0];
                         }
                         dockInfo.setCode(c);
-                        dockInfo.setName(p[1]);
                     }else {
                         dockInfo.setCode(p[0]);
-                        dockInfo.setName(p[1]);
+                    }
+                    if(p.length >=3){
+                        dockInfo.setMywantbuy(Double.parseDouble(p[1]));
+                        dockInfo.setMywantsale(Double.parseDouble(p[2]));
                     }
                     map.put(dockInfo.getCode(), dockInfo);
                 }

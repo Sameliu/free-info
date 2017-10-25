@@ -3,10 +3,12 @@ package com.sijin.free.task;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.sijin.free.po.DockInfo;
 import com.sijin.free.po.DockMA;
 import com.sijin.free.po.yahoo.YahooDock;
 import com.sijin.free.util.DateUtils;
 import com.sijin.free.util.HttpClientPoolUtill;
+import com.sijin.free.util.RemedyUtil;
 import com.sijin.free.util.SystemConfig;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -30,6 +32,7 @@ public class YahooTask implements Callable<DockMA> {
 
     private int threadNum;
     static DecimalFormat df = new DecimalFormat("######0.00");
+
     public YahooTask(String code, String name, int threadNum) {
         this.code = code;
         this.name = name.trim();
@@ -38,55 +41,96 @@ public class YahooTask implements Callable<DockMA> {
     }
 
     public DockMA call() throws Exception {
-        Thread.sleep(new Random().nextInt(2000) + 1);
+        Thread.sleep(new Random().nextInt(3000) + 1);
         Thread.currentThread().setName("thread[" + threadNum + "]");
-        DockMA dockMA = null;
-
+        DockMA dockMA = new DockMA();
+        dockMA.setCode(code);
+        dockMA.setName(name);
         try {
             String sockCode = code.substring(2,code.length()).concat(".").concat(code.substring(0, 2));
             sockCode = sockCode.replaceAll("sh", "SS");
-            dockMA = deal(sockCode);
-            // dockMA = dealNew(sockCode);
-            dockMA.setCode(code);
-            dockMA.setName(name);
+            //dockMA = deal(sockCode,dockMA);
+            dockMA = dealNew(sockCode,dockMA);
         }catch (Exception e){
-            e.printStackTrace();
-            LOGGER.info("bad data is " + code + ",name is " +name);
+            LOGGER.info("bad data cod is:{},name is:{}", code, name);
 
         }
-        //LOGGER.info(dockMA.toString());
+        LOGGER.info("thread finish {}[{}]",code , name);
         return dockMA;
     }
 
 
-    private DockMA dealNew(String sockCode) throws Exception{
-        DockMA dockMA = new DockMA();
-       String url = "https://query2.finance.yahoo.com/v8/finance/chart/{0}?formatted=true&crumb=s8TWg1rzwZX&lang=en-US&region=US&interval=1d&events=div%7Csplit&range=3mo&corsDomain=finance.yahoo.com";
-       String _url = MessageFormat.format(url,sockCode);
-        String result = httpClient.get(_url,"utf-8", 5000, 3000);
+    private DockMA dealNew(String sockCode, DockMA dockMA) throws Exception{
+        Thread.sleep(new Random().nextInt(4000) + 1);
+        String url = "https://query2.finance.yahoo.com/v8/finance/chart/{0}?formatted=true&crumb=s8TWg1rzwZX&lang=en-US&region=US&interval=1d&events=div%7Csplit&range=3mo&corsDomain=finance.yahoo.com";
+        String _url = MessageFormat.format(url,sockCode);
+        //System.out.println(_url);
+        Map<String,String> headerMap = new HashMap<String, String>();
+        headerMap.put(":authority","query2.finance.yahoo.com");
+        headerMap.put(":path","/v8/finance/chart/002202.sz?formatted=true&crumb=s8TWg1rzwZX&lang=en-US&region=US&interval=1d&events=div%7Csplit&range=3mo&corsDomain=finance.yahoo.com");
+        headerMap.put(":scheme","https");
+        headerMap.put("accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+        headerMap.put("accept-encoding","gzip, deflate, sdch, br");
+        headerMap.put("accept-language","zh-CN,zh;q=0.8,en;q=0.6");
+        headerMap.put("cache-control","max-age=0");
+        headerMap.put("cookie","B=8nrrem1blv9lc&b=3&s=hs; PRF=t%3D600460.SS%252B600115.SS");
+        headerMap.put("upgrade-insecure-requests","1");
+        headerMap.put("user-agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2906.0 Safari/537.36");
+        String result = "";
+        for(int i=0;i<3;i++){
+            try {
+                Thread.sleep((i+1)*2000);
+                result = httpClient.get(_url,"utf-8", 5000, 3000,headerMap);
+                break;
+            }catch (Exception e){
+                LOGGER.info("请求发生{}次错误,info:[{}->{}]",(i+1),code,name);
+                if(i == 2){
+                    DockInfo dockInfo = new DockInfo();
+                    dockInfo.setCode(code);
+                    dockInfo.setName(name);
+                    RemedyUtil.add(dockInfo);
+                    LOGGER.info("put it to voector~");
+                }
+               LOGGER.error("Exception is {}", e.getMessage());
+                continue;
+            }
+
+        }
         JSONObject chat = (JSONObject) JSON.parseObject(result).get("chart");
         JSONArray jsonArray = (JSONArray) chat.get("result");
+        if(jsonArray.size() == 0){
+            return dockMA;
+        }
         YahooDock yahooDock = JSON.parseObject(jsonArray.get(0).toString(), YahooDock.class);
-        List<Double> plist = yahooDock.getIndicators().getQuote().get(0).getClose();
-        List<Double> plowlist = yahooDock.getIndicators().getQuote().get(0).getLow();
-        List<Double> phighlist = yahooDock.getIndicators().getQuote().get(0).getHigh();
+        List<Double> plist = filter(yahooDock.getIndicators().getQuote().get(0).getClose());
+        List<Double> plowlist = filter(yahooDock.getIndicators().getQuote().get(0).getLow());
+        List<Double> phighlist = filter(yahooDock.getIndicators().getQuote().get(0).getHigh());
         Collections.sort(plowlist);
         Collections.sort(phighlist);
         Collections.reverse(plist);
         dockMA = setPriceAndRage(dockMA, plist);
-        dockMA.setHighPirce(new Double(df.format(phighlist.get(phighlist.size() - 1))));
+        dockMA.setHighPirce(phighlist.get(phighlist.size() - 1));
         Double low = plowlist.get(0);
         //Double weight = Double.valueOf(SystemConfig.getValue("weight","1"));
-        dockMA.setLowPirce(new Double(df.format(low)));
+        dockMA.setLowPirce(low);
 
         Double deviation = (dockMA.getLowPirce() - dockMA.getPrice()) / dockMA.getPrice(); //最低价高于当前价偏离情况
         dockMA.setDeviation(deviation);
         return dockMA;
     }
 
+    private List<Double> filter(List<Double> list) {
+        List<Double> tmp = new ArrayList<>();
+        for(int i =0; i< list.size(); i++){
+            if(list.get(i) != null){
+                tmp.add(new Double(df.format(list.get(i))));
+            }
+        }
+        return tmp;
+    }
 
-    private DockMA deal(String sockCode) throws Exception{
-        DockMA dockMA = new DockMA();
+
+    private DockMA deal(String sockCode, DockMA dockMA) throws Exception{
         String dstart = DateUtils.formatDate(DateUtils.addDays(new Date(), -90));
         String dend = DateUtils.formatDate(DateUtils.addDays(new Date(), 0));
         String[] dstartArr = dstart.split("-");
@@ -99,7 +143,7 @@ public class YahooTask implements Callable<DockMA> {
         String f =dendArr[0];
         String _url = "http://real-chart.finance.yahoo.com/table.csv?s={0}&a={1}&b={2}&c={3}&d={4}&b={5}&c={6}&g=d&ignore=.csv";
         String url = MessageFormat.format(_url, sockCode.toUpperCase(), a, b, c, d, e, f);
-        String s = httpClient.get(url, "gbk", 5000, 3000);
+        String s = httpClient.get(url, "gbk", 5000, 3000,null);
         if(!StringUtils.isBlank(s)){     //Date,      Open, High, Low,  Close,Volume,Adj Close
             String[] arr = s.split("\n");
             if(arr.length >=2 && !arr[0].contains("Date")){
@@ -127,9 +171,9 @@ public class YahooTask implements Callable<DockMA> {
             }
             dockMA.setHighPirce(high);
             dockMA.setLowPirce(low);
-            dockMA.setPrice(priceList.get(0));
+            dockMA.setPrice(Double.parseDouble(priceList.get(0).toString()));
             Double deviation = (dockMA.getLowPirce() - dockMA.getPrice()) / dockMA.getPrice(); //最低价高于当前价偏离情况
-            dockMA.setDeviation(new Double(df.format(deviation)));
+            dockMA.setDeviation(deviation);
             dockMA = setPriceAndRage(dockMA,priceList);
         }else {
             LOGGER.info("bad data is " + code + "[" +name+"]");
@@ -171,11 +215,11 @@ public class YahooTask implements Callable<DockMA> {
             dockMA.setMa10(new Double(df.format(ma10)));
             dockMA.setMa20(new Double(df.format(ma20)));
             dockMA.setMa30(new Double(df.format(ma30)));
-            dockMA.setRange5(new Double(df.format(range5)));
-            dockMA.setRange10(new Double(df.format(range10)));
-            dockMA.setRange20(new Double(df.format(range20)));
-            dockMA.setRange30(new Double(df.format(range30)));
-            dockMA.setPrice(new Double(df.format(pnow)));
+            dockMA.setRange5(range5);
+            dockMA.setRange10(range10);
+            dockMA.setRange20(range20);
+            dockMA.setRange30(range30);
+            dockMA.setPrice(pnow);
         }catch (Exception e){
             e.printStackTrace();
         }

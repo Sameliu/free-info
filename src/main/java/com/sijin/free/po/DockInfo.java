@@ -1,7 +1,5 @@
 package com.sijin.free.po;
 
-import java.text.NumberFormat;
-
 /**
  * Created by sijinzhang on 16/5/6.
  */
@@ -28,8 +26,12 @@ public class DockInfo {
 
     private Double mywantsale;//期望卖出
 
-
     private String mailMessage; //通知信息
+
+    private Double haveBuy;
+
+    private Double rate;
+
 
     public String getName() {
         return name;
@@ -128,19 +130,36 @@ public class DockInfo {
         this.mailMessage = mailMessage;
     }
 
+
+    public Double getHaveBuy() {
+        return haveBuy;
+    }
+
+    public void setHaveBuy(Double haveBuy) {
+        this.haveBuy = haveBuy;
+    }
+
+    public Double getRate() {
+        return rate;
+    }
+
+    public void setRate(Double rate) {
+        this.rate = rate;
+    }
+
     @Override
     public String toString() {
-        return "DockInfo{" +
-                code + "["+ name + "]" +
+        return "{" +
+                name + "["+ code + "]" +
                 ", price='" + price + '\'' +
-                ", mywantbuy='" + mywantbuy + '\'' +
                 ", lPrice='" + lPrice + '\'' +
-                ", mywantsale='" + mywantsale + '\'' +
+                ", mywantbuy='" + mywantbuy + '\'' +
                 ", hPrice='" + hPrice + '\'' +
+                ", mywantsale='" + mywantsale + '\'' +
                 ", sPrice='" + sPrice + '\'' +
                 ", yesterdayprice='" + yesterdayprice + '\'' +
-                ", datep='" + datep + '\'' +
-                ", timep='" + timep + '\'' +
+                ", rate='" + String.format("%.2f", rate) + '\'' +
+                //", timep='" + timep + '\'' +
 
                 '}';
     }

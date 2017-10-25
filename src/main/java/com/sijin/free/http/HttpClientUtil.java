@@ -20,7 +20,7 @@ import org.apache.http.util.EntityUtils;
  * 利用HttpClient进行post请求的工具类
  */
 public class HttpClientUtil {
-    public String doGet(String url,String charset, Map<String, String> headerMap){
+    public String  doGet(String url,String charset, Map<String, String> headerMap){
         HttpClient httpClient = null;
         HttpGet httpGet = null;
         String result = null;

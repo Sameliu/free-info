@@ -21,10 +21,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.net.Proxy;
+import java.util.*;
 
 /**
  * http工具类
@@ -66,9 +64,16 @@ public class HttpClientPoolUtill {
         cm.setMaxPerRoute(new HttpRoute(host), max);
     }
 
-    public String get(String url, String charset, int readTimeout, int connTimeout) throws Exception {
+    public String get(String url, String charset, int readTimeout, int connTimeout,Map<String, String> headerMap) throws Exception {
         String res = null;
         HttpGet httpget = new HttpGet(url);
+        if(headerMap != null && !headerMap.isEmpty()){
+            for(Map.Entry<String,String> entry : headerMap.entrySet()){
+                httpget.setHeader(entry.getKey(),entry.getValue());
+            }
+        }
+        //HttpHost host = new HttpHost("112.126.65.26",12345);
+        //RequestConfig requestConfig = RequestConfig.custom().setProxy(host).setSocketTimeout(readTimeout).setConnectTimeout(connTimeout).build();
         RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(readTimeout).setConnectTimeout(connTimeout).build();
         httpget.setConfig(requestConfig);
         HttpContext context = HttpClientContext.create();
@@ -81,7 +86,6 @@ public class HttpClientPoolUtill {
                 response.close();
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw ex;
         }
         return res;
@@ -136,6 +140,10 @@ public class HttpClientPoolUtill {
     }
 
     public String get(String url) throws Exception {
-        return this.get(url, "utf-8", 2500, 3000);
+        return this.get(url, "utf-8", 2500, 3000,null);
+    }
+
+    public String get(String url,Map<String,String> map) throws Exception {
+        return this.get(url, "utf-8", 2500, 3000,map);
     }
 }
