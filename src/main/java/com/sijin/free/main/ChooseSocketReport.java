@@ -30,7 +30,8 @@ public class ChooseSocketReport {
     static HttpClientPoolUtill httpClient = new HttpClientPoolUtill(2,1);
 
     public static void main(String[] args) {
-        String url = SEARCH_URL.concat(KEYWORD);
+        //String url = SEARCH_URL.concat(KEYWORD);
+        String url = "http://www.iwencai.com/stockpick/load-data?typed=1&preParams=&ts=1&f=1&qs=result_rewrite&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&w=%E4%B8%8D%E6%98%AFST%E4%B8%94%E5%B8%82&queryarea=";
         try {
             Map<String, String> headerMap = getheaderMap();
             System.out.println("search__url is " + url);
@@ -69,15 +70,19 @@ public class ChooseSocketReport {
 
     private static Map<String, String> getheaderMap() {
         Map<String, String> map = new HashMap<>();
-        map.put("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-        map.put("Accept-Encoding","gzip, deflate");
-        map.put("Accept-Language","zh-CN,zh;q=0.8,en;q=0.6");
-        map.put("Cache-Control","max-age=0");
+        map.put("X-Requested-With","XMLHttpRequest");
         map.put("Connection:","keep-alive");
-        //map.put("Cookie","PHPSESSID=96navg1rjm3v3tajdu6gumcec0; guideState=1; cid=35bc4v4jirkpv9u8bosijb85v31501212914; ComputerID=35bc4v4jirkpv9u8bosijb85v31501212914");
-        map.put("Host","www.iwencai.com");
-        map.put("Upgrade-Insecure-Requests","1");
+        map.put("Cookie","other_uid=Ths_iwencai_Xuangu_bw6sqz857g7fnn9j3acqtnj24z6ixgc0; other_uname=xeaql1ikwj; cid=ah9g6plt5rqqr7o2b43dqb02f71508420186; ComputerID=ah9g6plt5rqqr7o2b43dqb02f71508420186; guideState=1; OUTFOX_SEARCH_USER_ID_NCOO=196040945.3663267; PHPSESSID=1059c19203f856a66ae5f30892c39b75; v=AmZ1PHcdAJ6WONQ6vHB6kgkIsdfsR6pDfIreZVAPUNRkiAhBuNf6EUwbLnMi");
+        map.put("Accept-Encoding","gzip, deflate");
+        map.put("Accept-Language","zh-CN,zh;q=0.9,en;q=0.8");
+        map.put("hexin-v:","AmZ1PHcdAJ6WONQ6vHB6kgkIsdfsR6pDfIreZVAPUNRkiAhBuNf6EUwbLnMi");
         map.put("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36");
+        map.put("Accept","application/json, text/javascript, */*; q=0.01");
+
+
+        map.put("Referer","http://www.iwencai.com/stockpick/search?typed=0&preParams=&ts=1&f=1&qs=result_original&selfsectsn=&querytype=stock&searchfilter=&tid=stockpick&w=%E4%B8%8D%E6%98%AFST%E4%B8%94%E5%B8%82%E7%9B%88%E7%8E%87%E5%A4%A7%E4%BA%8E12%E5%80%8D%E4%B8%94%E5%B8%82%E7%9B%88%E7%8E%87%E5%B0%8F%E4%BA%8E30%E5%80%8D%E4%B8%BB%E6%9D%BF%E5%87%80%E5%88%A9%E6%B6%A6%E5%A2%9E%E9%95%BF%E7%8E%87%E5%A4%A7%E4%BA%8E30%E8%82%A1%E4%BB%B7%E5%A4%A7%E4%BA%8E8%E5%B0%8F%E4%BA%8E12%E5%87%80%E8%B5%84%E4%BA%A7%E6%94%B6%E7%9B%8A%E7%8E%87%E5%A4%A7%E4%BA%8E3&queryarea=");
+
+
 
         return map;
 
