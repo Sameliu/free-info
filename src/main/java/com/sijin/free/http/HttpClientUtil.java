@@ -41,15 +41,18 @@ public class HttpClientUtil {
             }
             HttpResponse response = httpClient.execute(httpGet);
             if(response != null){
-                HttpEntity resEntity = response.getEntity();
-                if(resEntity != null){
-                    if(charset == null){
-                        InputStream instreams = resEntity.getContent();
-                        result= convertStreamToString(instreams);
-                    }else {
-                        result = EntityUtils.toString(resEntity,charset);
-                    }
+                InputStream stream =  response.getEntity().getContent();
+
+                InputStream dad = new GZIPInputStream(stream);
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(dad,"utf-8"));
+                StringBuffer sb = new StringBuffer();
+                String line = "";
+                while ((line = reader.readLine()) != null){
+                    sb.append(line);
                 }
+                result = sb.toString();
+                System.out.println(sb.toString());
             }
         }catch(Exception ex){
             ex.printStackTrace();
@@ -58,7 +61,7 @@ public class HttpClientUtil {
     }
 
 
-    public String doPost(String url, Map<String, String> map, String charset, Map<String, String> headerMap){
+        public String doPost(String url, Map<String, String> map, String charset, Map<String, String> headerMap){
         HttpClient httpClient = null;
         HttpPost httpPost = null;
         String result = null;
